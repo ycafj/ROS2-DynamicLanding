@@ -4,25 +4,39 @@
 Вся логіка прийняття рішень (коли летіти, а коли сідати) побудована на деревах поведінки (Behavior Trees), а безпосереднім керуванням моторів займається автопілот PX4.
 
      Технології
+     
 ROS 2
+
 PX4 Autopilot
+
 Gazebo Simulator
+
 BehaviorTree.CPP
+
 QGroundControl(QGC)
 
 Для роботи програми потрібно в директорію PX4-Autopilot/Tools/simulation/gz/worlds додати свій .sdf файл світу, для прикладу в проекті використовується ycafj.sdf файл, який містить простий опис світу з налаштованою фізикою та платформою
+
 Глобальна фізика: Світ використовує стандартні налаштування фізичного рушія Gazebo зі звичайною земною гравітацією.
+
 Фізика платформи (plate): Для цільової рухомої платформи вплив гравітації примусово вимкнено (`<gravity>false</gravity>`), а саму модель переведено в кінематичний стан (`<kinematic>true</kinematic>`). Це зроблено для того, щоб платформа масою 50 кг не взаємодіяла з гравітацією та не терлася об землю, а ідеально рівно пересувалася у просторі виключно за рахунок команд швидкості через плагін `VelocityControl`.
+
      Як запустити
+     
 1. Запустіть симулятор PX4 з потрібним світом та моделлю дрона(також за потреби змінити назви топіків в Groot).
    PX4_GZ_WORLD=ваш_світ.sdf make px4_sitl gz_x500
+   
 2. Запустити містки PX4-ROS2 та ROS2-Gazebo:
    MicroXRCEAgent udp4 -p 8888
    ros2 run ros_gz_bridge parameter_bridge /model/plate/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist /model/plate/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry
+   
 3. Запустити програму QGroundControl
+ 
 4. Зберіть пакет у робочій області та встановіть джерело:
    colcon build
+   
    source install/setup.bash
+   
 5. Запустіть проект:
    ros2 run project1 run
    
