@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="MoveToSetPoint">
+    <Parallel failure_count="1"
+              success_count="1">
+      <KeepRunningUntilFailure>
+        <ReactiveSequence>
+          <RetryUntilSuccessful num_attempts="-1">
+            <GetPosVel pos="{DronePosNed}"
+                       vel="{DroneVelNed}"
+                       topic_name="/fmu/out/vehicle_local_position_v1"/>
+          </RetryUntilSuccessful>
+          <NEDtoENUPosVel nedpos="{DronePosNed}"
+                          nedvel="{DroneVelNed}"
+                          enupos="{DronePosEnu}"
+                          enuvel="{DroneVelEnu}"/>
+          <PubSetPointVel plate_pos="{@plate_pos}"
+                          plate_vel="{@plate_vel}"
+                          drone_pos="{DronePosEnu}"
+                          drone_vel="{DroneVelEnu}"
+                          topic_name="/fmu/in/trajectory_setpoint"/>
+          <PubOffboard topic_name="/fmu/in/offboard_control_mode"/>
+        </ReactiveSequence>
+      </KeepRunningUntilFailure>
+      <Sequence>
+        <RunOnce then_skip="true">
+          <Delay delay_msec="1000">
+            <PubVehicleCommand topic_name="/fmu/in/vehicle_command"
+                               param1="1.0"
+                               command="400"/>
+          </Delay>
+        </RunOnce>
+        <RunOnce then_skip="true">
+          <SetOffboardMode topic_name="/fmu/in/vehicle_command"/>
+        </RunOnce>
+        <Fly plate_pos="{@plate_pos}"
+             drone_pos="{DronePosEnu}"/>
+        <PubVehicleCommand topic_name="/fmu/in/vehicle_command"
+                           param1="0.0"
+                           command="21"/>
+        <PubVehicleCommand topic_name="/fmu/in/vehicle_command"
+                           param1="0.0"
+                           command="400"/>
+      </Sequence>
+    </Parallel>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="Fly"
+            editable="true">
+      <input_port name="plate_pos"
+                  type="Pos"/>
+      <input_port name="drone_pos"
+                  type="Pos"/>
+    </Action>
+    <Action ID="GetPosVel"
+            editable="true">
+      <output_port name="pos"
+                   type="Pos"/>
+      <output_port name="vel"
+                   type="Vel"/>
+      <input_port name="topic_name"
+                  default="/fmu/out/vehicle_local_position_v1"
+                  type="std::string"/>
+    </Action>
+    <Action ID="NEDtoENUPosVel"
+            editable="true">
+      <input_port name="nedpos"
+                  type="Pos"/>
+      <input_port name="nedvel"
+                  type="Vel"/>
+      <output_port name="enupos"
+                   type="Pos"/>
+      <output_port name="enuvel"
+                   type="Vel"/>
+    </Action>
+    <Action ID="PubOffboard"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/fmu/in/offboard_control_mode"
+                  type="std::string"/>
+    </Action>
+    <Action ID="PubSetPointVel"
+            editable="true">
+      <input_port name="plate_pos"
+                  type="Pos"/>
+      <input_port name="plate_vel"
+                  type="TwistVel"/>
+      <input_port name="drone_pos"
+                  type="Pos"/>
+      <input_port name="drone_vel"
+                  type="Vel"/>
+      <input_port name="topic_name"
+                  default="/fmu/in/trajectory_setpoint"
+                  type="topic_name"/>
+    </Action>
+    <Action ID="PubVehicleCommand"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/fmu/in/vehicle_command"
+                  type="std::string"/>
+      <input_port name="param1"
+                  default="1.0"
+                  type="double"/>
+      <input_port name="command"
+                  type="int"/>
+    </Action>
+    <Action ID="SetOffboardMode"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/fmu/in/vehicle_command"
+                  type="std::string"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+  <BehaviorTree ID="proj1">
+    <Parallel failure_count="1"
+              success_count="1">
+      <ParallelAll max_failures="2">
+        <KeepRunningUntilFailure>
+          <MovePlatform topic_name="/model/plate/cmd_vel"/>
+        </KeepRunningUntilFailure>
+        <KeepRunningUntilFailure>
+          <GetPlatePosVel pos="{@plate_pos}"
+                          vel="{@plate_vel}"
+                          topic_name="/model/plate/odometry"/>
+        </KeepRunningUntilFailure>
+      </ParallelAll>
+      <Delay delay_msec="2000">
+        <SubTree ID="MoveToSetPoint"/>
+      </Delay>
+    </Parallel>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="GetPlatePosVel"
+            editable="true">
+      <output_port name="pos"
+                   type="Pos"/>
+      <output_port name="vel"
+                   type="TwistVel"/>
+      <input_port name="topic_name"
+                  default="/model/plate/odometry"
+                  type="std::string"/>
+    </Action>
+    <Action ID="MovePlatform"
+            editable="true">
+      <input_port name="topic_name"
+                  default="/model/plate/cmd_vel"
+                  type="std::string"/>
+    </Action>
+  </TreeNodesModel>
+
+</root>
