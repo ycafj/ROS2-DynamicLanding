@@ -38,5 +38,5 @@ QGroundControl(QGC)
    source install/setup.bash
    
 5. Запустіть проект:
-   ros2 run project1 run
+   ros2 run назва_робочої_області run
    
